@@ -29,7 +29,7 @@ public class ProcessUtils {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             // 等待程序执行，获取错误码
-            int exitValue = runProcess.waitFor();
+            long exitValue = runProcess.waitFor();
             executeMessage.setExitValue(exitValue);
             // 正常退出
             if (exitValue == 0) {

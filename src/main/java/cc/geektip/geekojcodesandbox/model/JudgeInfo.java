@@ -22,5 +22,11 @@ public class JudgeInfo {
      * 消耗时间（KB）
      */
     private Long time;
+
+    /**
+     * 是否超时
+     */
+    private Boolean isTimeOut;
+
 }
 

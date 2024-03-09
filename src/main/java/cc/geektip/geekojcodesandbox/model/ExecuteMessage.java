@@ -10,14 +10,17 @@ import lombok.Data;
 @Data
 public class ExecuteMessage {
 
-    private Integer exitValue;
+    private Long exitValue;
 
     private String message;
 
     private String errorMessage;
 
+    private Long memory;
+
     private Long time;
 
-    private Long memory;
+    private boolean isTimeout;
+
 }
 
