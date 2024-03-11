@@ -17,8 +17,6 @@ import java.util.Map;
 public class CodeSandboxProperties {
     // 代码沙箱全局代码路径
     private String globalCodePath;
-    // 代码沙箱运行超时时间
-    private String runTimeOut;
     // 代码沙箱语言设置
     private Map<String, LangSpecSetting> languageSettings;
 }

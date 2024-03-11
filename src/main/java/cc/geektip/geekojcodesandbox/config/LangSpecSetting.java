@@ -11,6 +11,10 @@ import lombok.Data;
 public class LangSpecSetting {
     // 主文件名
     private String mainFile;
+    // 编译超时
+    private Long compileTimeOut;
+    // 运行超时
+    private Long runTimeOut;
     // 编译命令
     private String compileCommand;
     // 运行命令

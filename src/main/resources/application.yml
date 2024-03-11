@@ -3,20 +3,25 @@ server:
 
 code-sandbox:
   global-code-path: tmpCode
-  run-time-out: 5000
   language-settings:
     java:
       main-file: Main.java
-      compile-command: javac -encoding utf-8 Main.java
+      compile-time-out: 30000
+      run-time-out: 5000
+      compile-command: javac -encoding utf-8 /app/Main.java
       run-command: java -cp /app Main
     cpp:
-        main-file: Main.cpp
-        compile-command: g++ -o Main Main.cpp
-        run-command: /app/Main
+      main-file: Main.cpp
+      compile-time-out: 30000
+      run-time-out: 5000
+      compile-command: g++ -o /app/Main /app/Main.cpp
+      run-command: /app/Main
     golang:
-        main-file: main.go
-        compile-command: go build -o /app/main main.go
-        run-command: /app/main
+      main-file: main.go
+      compile-time-out: 30000
+      run-time-out: 5000
+      compile-command: go build -o /app/main /app/main.go
+      run-command: /app/main
 
 docker:
   host: npipe:////./pipe/docker_engine

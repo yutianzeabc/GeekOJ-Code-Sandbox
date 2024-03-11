@@ -26,7 +26,7 @@ import java.util.UUID;
  * @date: 2024/3/1
  */
 @Slf4j
-public class JavaNativeCodeSandbox implements CodeSandbox {
+public class JavaNativeCodeSandboxOld implements CodeSandbox {
     private static final String GLOBAL_CODE_DIR_NAME = "tmpCode";
 
     private static final String GLOBAL_JAVA_CLASS_NAME = "Main.java";
@@ -47,7 +47,7 @@ public class JavaNativeCodeSandbox implements CodeSandbox {
     }
 
     public static void main(String[] args) {
-        JavaNativeCodeSandbox javaNativeCodeSandbox = new JavaNativeCodeSandbox();
+        JavaNativeCodeSandboxOld javaNativeCodeSandbox = new JavaNativeCodeSandboxOld();
         ExecuteCodeRequest executeCodeRequest = new ExecuteCodeRequest();
         executeCodeRequest.setInputList(List.of("1 2"));
         String code = ResourceUtil.readStr("testCode/unsafeCode/RunFileError.java", StandardCharsets.UTF_8);
