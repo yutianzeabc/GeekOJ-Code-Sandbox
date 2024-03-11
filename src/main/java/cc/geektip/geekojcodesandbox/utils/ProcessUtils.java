@@ -15,6 +15,9 @@ import java.util.List;
  */
 @Slf4j
 public class ProcessUtils {
+
+    private final static String PROCESS_CHARSET = "GBK";
+
     /**
      * 运行进程并获取进程的执行信息
      *
@@ -33,9 +36,9 @@ public class ProcessUtils {
             executeMessage.setExitValue(exitValue);
             // 正常退出
             if (exitValue == 0) {
-               log.info(opName + "成功");
+                log.info(opName + "成功");
                 // 分批获取进程的正常输出
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(runProcess.getInputStream()));
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(runProcess.getInputStream(), PROCESS_CHARSET));
 
                 // 逐行读取
                 List<String> outputStrList = new ArrayList<>();
@@ -48,7 +51,7 @@ public class ProcessUtils {
                 // 异常退出
                 log.error(opName + "失败，错误码: " + exitValue);
                 // 分批获取进程的正常输出
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(runProcess.getInputStream()));
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(runProcess.getInputStream(), PROCESS_CHARSET));
                 List<String> outputStrList = new ArrayList<>();
                 // 逐行读取
                 String compileOutputLine;
@@ -58,7 +61,7 @@ public class ProcessUtils {
                 executeMessage.setMessage(String.join("\n", outputStrList));
 
                 // 分批获取进程的错误输出
-                BufferedReader errorBufferedReader = new BufferedReader(new InputStreamReader(runProcess.getErrorStream()));
+                BufferedReader errorBufferedReader = new BufferedReader(new InputStreamReader(runProcess.getErrorStream(), PROCESS_CHARSET));
 
                 // 逐行读取
                 List<String> errorOutputStrList = new ArrayList<>();
@@ -92,7 +95,7 @@ public class ProcessUtils {
         try (OutputStream outputStream = runProcess.getOutputStream();
              OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
              InputStream inputStream = runProcess.getInputStream();
-             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
+             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, PROCESS_CHARSET))) {
 
             outputStreamWriter.write(String.join("\n", args.split(" ")) + "\n");
             outputStreamWriter.flush();

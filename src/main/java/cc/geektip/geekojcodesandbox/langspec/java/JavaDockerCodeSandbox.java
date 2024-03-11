@@ -1,6 +1,8 @@
-package cc.geektip.geekojcodesandbox;
+package cc.geektip.geekojcodesandbox.langspec.java;
 
-import cc.geektip.geekojcodesandbox.docker.JudgeDockerClient;
+import cc.geektip.geekojcodesandbox.CodeSandbox;
+import cc.geektip.geekojcodesandbox.docker.DockerCleanupManager;
+import cc.geektip.geekojcodesandbox.docker.DockerInstance;
 import cc.geektip.geekojcodesandbox.model.ExecuteCodeRequest;
 import cc.geektip.geekojcodesandbox.model.ExecuteCodeResponse;
 import cc.geektip.geekojcodesandbox.model.ExecuteMessage;
@@ -45,16 +47,17 @@ public class JavaDockerCodeSandbox implements CodeSandbox {
     private static final long TIME_OUT = 5000L;
 
     @Resource
-    private JudgeDockerClient judgeDockerClient;
+    private DockerInstance dockerInstance;
+
+    @Resource
+    private DockerCleanupManager dockerCleanupManager;
 
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
         List<String> inputList = executeCodeRequest.getInputList();
         String code = executeCodeRequest.getCode();
-        String language = executeCodeRequest.getLanguage();
 
-
-//        1. 把用户的代码保存为文件
+        // 1. 把用户的代码保存为文件
         String userDir = System.getProperty("user.dir");
         String globalCodePathName = userDir + File.separator + GLOBAL_CODE_DIR_NAME;
         // 判断全局代码目录是否存在，没有则新建
@@ -72,16 +75,21 @@ public class JavaDockerCodeSandbox implements CodeSandbox {
         try {
             Process compileProcess = Runtime.getRuntime().exec(compileCommand);
             ExecuteMessage compileMessage = ProcessUtils.runProcessAndGetMessage(compileProcess, "编译");
-            log.info(compileMessage.toString());
+            log.debug("编译结果: {}", compileMessage);
+            if (compileMessage.getExitValue() != 0) {
+                return buildUsrErrorResp(new Exception(compileMessage.getErrorMessage()));
+            }
         } catch (Exception e) {
-            return getErrorResponse(e);
+            return buildSysErrorResp(e);
+        } finally {
+            removeCodeCache(userCodeFile);
         }
 
         // 3. 创建容器，把文件复制到容器内
         // 创建容器
-        String containerId = judgeDockerClient.createContainer(userCodeParentPath);
+        final String containerId = dockerInstance.createContainer(userCodeParentPath);
         // 启动容器
-        judgeDockerClient.startContainer(containerId);
+        dockerInstance.startContainer(containerId);
 
         // 执行命令并获取结果
         List<ExecuteMessage> executeMessageList = new ArrayList<>();
@@ -90,9 +98,9 @@ public class JavaDockerCodeSandbox implements CodeSandbox {
             StopWatch stopWatch = new StopWatch();
             String[] inputArgsArray = inputArgs.split(" ");
             String[] cmdArray = ArrayUtil.append(new String[]{"java", "-cp", "/app", "Main"}, inputArgsArray);
-            String execId = judgeDockerClient.createExecCmd(containerId, cmdArray);
+            String execId = dockerInstance.createExecCmd(containerId, cmdArray);
 
-            ExecuteMessage executeMessage = new ExecuteMessage();
+            // 执行结果
             final StringBuffer message = new StringBuffer();
             final StringBuffer errorMessage = new StringBuffer();
             // 退出码
@@ -105,18 +113,18 @@ public class JavaDockerCodeSandbox implements CodeSandbox {
             final AtomicLong maxMemory = new AtomicLong(0L);
 
             try {
-                var statsCmd = judgeDockerClient.statsContainer(containerId, new ResultCallbackTemplate<ResultCallback<Statistics>, Statistics>() {
+                var statsCmd = dockerInstance.statsContainer(containerId, new ResultCallbackTemplate<ResultCallback<Statistics>, Statistics>() {
                     @Override
                     public void onNext(Statistics statistics) {
                         Long memoryUsage = statistics.getMemoryStats().getUsage();
                         if (ObjectUtil.isNotNull(memoryUsage)) {
                             maxMemory.set(Math.max(maxMemory.get(), memoryUsage));
                         } else {
-                            log.debug("内存使用情况: 暂无数据");
+                            log.debug("内存使用情况: N/A");
                         }
                     }
                 });
-                var exec = judgeDockerClient.startExecCmd(execId, new ResultCallbackTemplate<ResultCallback<Frame>, Frame>() {
+                var exec = dockerInstance.startExecCmd(execId, new ResultCallbackTemplate<ResultCallback<Frame>, Frame>() {
                     @Override
                     public void onStart(Closeable stream) {
                         super.onStart(stream);
@@ -140,17 +148,25 @@ public class JavaDockerCodeSandbox implements CodeSandbox {
                         time.set(stopWatch.getTotalTimeMillis());
                         isTimeout.set(false);
                         log.debug("用例执行完成");
+                        super.onComplete();
                     }
                 });
                 // 等待执行完成
                 exec.awaitCompletion(TIME_OUT, TimeUnit.MILLISECONDS);
                 statsCmd.close();
                 // 获取退出码
-                exitCode.set(judgeDockerClient.inspectExecCmd(execId));
+                StopWatch t = new StopWatch();
+                t.start();
+                exitCode.set(dockerInstance.inspectExecCmd(execId));
+                t.stop();
+                log.debug("获取退出码耗时: {}", t.getTotalTimeMillis());
             } catch (Exception e) {
                 log.error("程序执行异常: ", e);
-                return getErrorResponse(e);
+                return buildSysErrorResp(e);
+            } finally {
+                removeCodeCache(userCodeFile);
             }
+            ExecuteMessage executeMessage = new ExecuteMessage();
             executeMessage.setExitValue(exitCode.get());
             executeMessage.setMessage(message.toString());
             executeMessage.setErrorMessage(errorMessage.toString());
@@ -193,35 +209,52 @@ public class JavaDockerCodeSandbox implements CodeSandbox {
 
         executeCodeResponse.setJudgeInfo(judgeInfo);
 
-        // 5. 移除容器
-        judgeDockerClient.stopContainer(containerId);
-        judgeDockerClient.removeContainer(containerId);
-
-        // 6. 文件清理
-        if (userCodeFile.getParentFile() != null) {
-            boolean del = FileUtil.del(userCodeParentPath);
-            if (!del) {
-                log.error("删除失败");
-            } else {
-                log.info("删除成功");
-            }
-        }
+        // 5. 提交清理任务
+        dockerCleanupManager.submitCleanupTask(containerId);
 
         return executeCodeResponse;
     }
 
+    private static void removeCodeCache(File userCodeFile) {
+        File parentFile = userCodeFile.getParentFile();
+        if (FileUtil.exist(parentFile)) {
+            boolean del = FileUtil.del(parentFile);
+            if (!del) {
+                log.error("代码缓存删除失败");
+            } else {
+                log.info("代码缓存删除成功");
+            }
+        }
+    }
+
     /**
-     * 获取错误响应
+     * 获取错误响应（系统）
      *
      * @param e 异常
      * @return
      */
-    private ExecuteCodeResponse getErrorResponse(Exception e) {
+    private ExecuteCodeResponse buildSysErrorResp(Exception e) {
         ExecuteCodeResponse executeCodeResponse = new ExecuteCodeResponse();
         executeCodeResponse.setOutputList(new ArrayList<>());
         executeCodeResponse.setMessage(e.getMessage());
         // 表示代码沙箱错误
         executeCodeResponse.setStatus(2);
+        executeCodeResponse.setJudgeInfo(new JudgeInfo());
+        return executeCodeResponse;
+    }
+
+    /**
+     * 获取错误响应（用户）
+     *
+     * @param e 异常
+     * @return
+     */
+    private ExecuteCodeResponse buildUsrErrorResp(Exception e) {
+        ExecuteCodeResponse executeCodeResponse = new ExecuteCodeResponse();
+        executeCodeResponse.setOutputList(new ArrayList<>());
+        executeCodeResponse.setMessage(e.getMessage());
+        // 表示用户代码错误
+        executeCodeResponse.setStatus(3);
         executeCodeResponse.setJudgeInfo(new JudgeInfo());
         return executeCodeResponse;
     }

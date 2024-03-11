@@ -1,5 +1,6 @@
 package cc.geektip.geekojcodesandbox.docker;
 
+import cc.geektip.geekojcodesandbox.config.DockerProperties;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.*;
@@ -15,13 +16,13 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 
 /**
- * @description: JudgeDockerClient
+ * @description: DockerInstance
  * @author: Fish
  * @date: 2024/3/8
  */
 @Slf4j
 @Component
-public class JudgeDockerClient {
+public class DockerInstance {
 
     @Resource
     private DockerProperties dockerProperties;

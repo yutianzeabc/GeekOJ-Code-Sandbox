@@ -1,5 +1,23 @@
 server:
   port: 8090
+
+code-sandbox:
+  global-code-path: tmpCode
+  run-time-out: 5000
+  language-settings:
+    java:
+      main-file: Main.java
+      compile-command: javac -encoding utf-8 Main.java
+      run-command: java -cp /app Main
+    cpp:
+        main-file: Main.cpp
+        compile-command: g++ -o Main Main.cpp
+        run-command: /app/Main
+    golang:
+        main-file: main.go
+        compile-command: go build -o /app/main main.go
+        run-command: /app/main
+
 docker:
   host: npipe:////./pipe/docker_engine
   image: eclipse-temurin:17-jdk
@@ -9,7 +27,8 @@ docker:
     memory: 100000000
     memory-swap: 0
     network-disabled: true
-    read-only-rootfs: false
+    read-only-rootfs: true
+
 logging:
   level:
     cc.geektip.geekojcodesandbox: DEBUG

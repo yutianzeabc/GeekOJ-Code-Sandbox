@@ -1,5 +1,6 @@
-package cc.geektip.geekojcodesandbox;
+package cc.geektip.geekojcodesandbox.langspec.java;
 
+import cc.geektip.geekojcodesandbox.CodeSandbox;
 import cc.geektip.geekojcodesandbox.model.ExecuteCodeRequest;
 import cc.geektip.geekojcodesandbox.model.ExecuteCodeResponse;
 import cc.geektip.geekojcodesandbox.model.ExecuteMessage;
