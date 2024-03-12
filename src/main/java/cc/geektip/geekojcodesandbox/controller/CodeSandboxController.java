@@ -4,6 +4,7 @@ import cc.geektip.geekojcodesandbox.impl.DockerCodeSandbox;
 import cc.geektip.geekojcodesandbox.model.ExecuteCodeRequest;
 import cc.geektip.geekojcodesandbox.model.ExecuteCodeResponse;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,7 +27,7 @@ public class CodeSandboxController {
     }
 
     @PostMapping("/executeCode")
-    public ExecuteCodeResponse executeCode(@RequestBody ExecuteCodeRequest executeCodeRequest) {
+    public ExecuteCodeResponse executeCode(@Valid @RequestBody ExecuteCodeRequest executeCodeRequest) {
         ExecuteCodeResponse executeCodeResponse = dockerCodeSandbox.executeCode(executeCodeRequest);
         if (executeCodeResponse == null) {
             throw new RuntimeException("代码沙箱执行失败");
