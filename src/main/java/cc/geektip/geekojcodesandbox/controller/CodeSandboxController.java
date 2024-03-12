@@ -1,6 +1,6 @@
 package cc.geektip.geekojcodesandbox.controller;
 
-import cc.geektip.geekojcodesandbox.langspec.java.JavaDockerCodeSandbox;
+import cc.geektip.geekojcodesandbox.impl.DockerCodeSandbox;
 import cc.geektip.geekojcodesandbox.model.ExecuteCodeRequest;
 import cc.geektip.geekojcodesandbox.model.ExecuteCodeResponse;
 import jakarta.annotation.Resource;
@@ -10,15 +10,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @description:
+ * @description: 代码沙箱控制器类
  * @author: Fish
  * @date: 2024/3/1
  */
 @RestController("/")
-public class MainController {
+public class CodeSandboxController {
 
     @Resource
-    JavaDockerCodeSandbox javaDockerCodeSandbox;
+    DockerCodeSandbox dockerCodeSandbox;
 
     @GetMapping("/health")
     public String health() {
@@ -27,6 +27,10 @@ public class MainController {
 
     @PostMapping("/executeCode")
     public ExecuteCodeResponse executeCode(@RequestBody ExecuteCodeRequest executeCodeRequest) {
-        return new ExecuteCodeResponse();
+        ExecuteCodeResponse executeCodeResponse = dockerCodeSandbox.executeCode(executeCodeRequest);
+        if (executeCodeResponse == null) {
+            throw new RuntimeException("代码沙箱执行失败");
+        }
+        return executeCodeResponse;
     }
 }

@@ -25,7 +25,7 @@ public class DockerCleanupManager {
 
     /**
      * 提交清理任务
-     * @param containerId
+     * @param containerId 容器ID
      */
     public void submitCleanupTask(String containerId) {
         log.debug("提交清理任务: {}", containerId);

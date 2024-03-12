@@ -1,5 +1,6 @@
 package cc.geektip.geekojcodesandbox.docker;
 
+import cc.geektip.geekojcodesandbox.config.CodeSandboxProperties;
 import cc.geektip.geekojcodesandbox.config.DockerProperties;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
@@ -26,6 +27,9 @@ import java.net.URI;
 public class DockerInstance {
 
     @Resource
+    private CodeSandboxProperties codeSandboxProperties;
+
+    @Resource
     private DockerProperties dockerProperties;
 
     @Getter
@@ -35,27 +39,25 @@ public class DockerInstance {
     public void init() {
         dockerClient = DockerClientBuilder.getInstance().withDockerHttpClient(new ApacheDockerHttpClient.Builder().dockerHost(URI.create(dockerProperties.getHost())).build()).build();
         if (dockerProperties.isFirstInit()) {
-            log.info("首次启动，拉取镜像");
-            String image = dockerProperties.getImage();
-            try {
-                dockerClient.pullImageCmd(image).exec(new PullImageResultCallback() {
-                    @Override
-                    public void onNext(PullResponseItem item) {
-                        System.out.println("下载镜像: " + item.getStatus());
-                        super.onNext(item);
-                    }
-                }).awaitCompletion();
-            } catch (Exception e) {
-                log.error("拉取镜像失败");
-                throw new RuntimeException(e);
+            log.info("首次启动，拉取评测镜像");
+
+            for (var langEntry : codeSandboxProperties.getLanguageSettings().entrySet()) {
+                String lang = langEntry.getKey().toUpperCase();
+                String image = langEntry.getValue().getImage();
+                try {
+                    log.debug("拉取评测镜像: {} -> {}", lang, image);
+                    dockerClient.pullImageCmd(image).start().awaitCompletion();
+                } catch (Exception e) {
+                    log.error("拉取镜像失败");
+                    throw new RuntimeException(e);
+                }
             }
+
             log.info("拉取镜像完成");
         }
     }
 
-    public String createContainer(String appPath) {
-        String image = dockerProperties.getImage();
-
+    public String createContainer(String image, String appPath) {
         HostConfig hostConfig = new HostConfig()
                 .withMemory(dockerProperties.getContainer().getMemory())
                 .withMemorySwap(dockerProperties.getContainer().getMemorySwap())

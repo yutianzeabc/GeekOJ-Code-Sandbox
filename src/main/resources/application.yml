@@ -2,21 +2,25 @@ server:
   port: 8090
 
 code-sandbox:
+  x-service-key: 889b6b14-cdc0-4378-8fa5-6488a4b1f2f7
   global-code-path: tmpCode
   language-settings:
     java:
+      image: eclipse-temurin:17-jdk
       main-file: Main.java
       compile-time-out: 30000
       run-time-out: 5000
       compile-command: javac -encoding utf-8 /app/Main.java
       run-command: java -cp /app Main
     cpp:
+      image: gcc:10
       main-file: Main.cpp
       compile-time-out: 30000
       run-time-out: 5000
       compile-command: g++ -o /app/Main /app/Main.cpp
       run-command: /app/Main
     golang:
+      image: golang:1.20
       main-file: main.go
       compile-time-out: 30000
       run-time-out: 5000
@@ -25,11 +29,10 @@ code-sandbox:
 
 docker:
   host: npipe:////./pipe/docker_engine
-  image: judge-base:latest
   first-init: false
   container:
     cpu-count: 1
-    memory: 100000000
+    memory: 1073741824
     memory-swap: 0
     network-disabled: true
     read-only-rootfs: false

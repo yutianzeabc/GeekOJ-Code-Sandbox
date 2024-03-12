@@ -15,6 +15,8 @@ import java.util.Map;
 @Configuration
 @ConfigurationProperties(prefix = "code-sandbox")
 public class CodeSandboxProperties {
+    // 代码沙箱服务密钥
+    private String xServiceKey;
     // 代码沙箱全局代码路径
     private String globalCodePath;
     // 代码沙箱语言设置

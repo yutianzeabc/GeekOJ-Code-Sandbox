@@ -9,6 +9,8 @@ import lombok.Data;
  */
 @Data
 public class LangSpecSetting {
+    // 容器镜像
+    private String image;
     // 主文件名
     private String mainFile;
     // 编译超时

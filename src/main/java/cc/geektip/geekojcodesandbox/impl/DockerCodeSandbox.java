@@ -1,4 +1,4 @@
-package cc.geektip.geekojcodesandbox.langspec.cpp;
+package cc.geektip.geekojcodesandbox.impl;
 
 import cc.geektip.geekojcodesandbox.CodeSandboxTemplate;
 import cc.geektip.geekojcodesandbox.docker.DockerCleanupManager;
@@ -28,27 +28,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @description: CppDockerCodeSandbox
+ * @description: DockerCodeSandbox
  * @author: Fish
  * @date: 2024/3/1
  */
 @Component
 @Slf4j
-public class CppDockerCodeSandbox extends CodeSandboxTemplate {
+public class DockerCodeSandbox extends CodeSandboxTemplate {
     @Resource
     private DockerInstance dockerInstance;
 
     @Resource
     private DockerCleanupManager dockerCleanupManager;
 
-    @Override
-    protected String language() {
-        return "cpp";
-    }
 
     @Override
     protected void beforeCompile(Map<String, String> context, File codeFile) {
-        String containerId = dockerInstance.createContainer(codeFile.getParent());
+        String containerId = dockerInstance.createContainer(langSpecSetting(context).getImage(), codeFile.getParent());
         context.put("containerId", containerId);
         dockerInstance.startContainer(containerId);
     }
@@ -57,7 +53,7 @@ public class CppDockerCodeSandbox extends CodeSandboxTemplate {
     @Override
     protected ExecuteMessage compile(Map<String, String> context, File codeFile) {
         ExecuteMessage executeMessage = new ExecuteMessage();
-        String[] compileCmd = langSpecSetting().getCompileCommand().split(" ");
+        String[] compileCmd = langSpecSetting(context).getCompileCommand().split(" ");
         String containerId = context.get("containerId");
         String execId = dockerInstance.createExecCmd(containerId, compileCmd);
 
@@ -98,7 +94,7 @@ public class CppDockerCodeSandbox extends CodeSandboxTemplate {
                 super.onComplete();
             }
         })) {
-            exec.awaitCompletion(langSpecSetting().getCompileTimeOut(), TimeUnit.MILLISECONDS);
+            exec.awaitCompletion(langSpecSetting(context).getCompileTimeOut(), TimeUnit.MILLISECONDS);
         }
 
         executeMessage.setExitValue(dockerInstance.inspectExecCmd(execId));
@@ -121,7 +117,7 @@ public class CppDockerCodeSandbox extends CodeSandboxTemplate {
         for (String inputArgs : inputList) {
 
             String[] inputArgsArray = inputArgs.split(" ");
-            String[] runCommand = langSpecSetting().getRunCommand().split(" ");
+            String[] runCommand = langSpecSetting(context).getRunCommand().split(" ");
             String[] cmdArray = ArrayUtil.append(runCommand, inputArgsArray);
             String execId = dockerInstance.createExecCmd(containerId, cmdArray);
 
@@ -137,14 +133,12 @@ public class CppDockerCodeSandbox extends CodeSandboxTemplate {
             // 判断是否超内存
             final AtomicLong maxMemory = new AtomicLong(0L);
 
-            try (var statsCmd = dockerInstance.statsContainer(containerId, new ResultCallbackTemplate<ResultCallback<Statistics>, Statistics>() {
+            try (var stat = dockerInstance.statsContainer(containerId, new ResultCallbackTemplate<ResultCallback<Statistics>, Statistics>() {
                 @Override
                 public void onNext(Statistics statistics) {
                     Long memoryUsage = statistics.getMemoryStats().getUsage();
                     if (ObjectUtil.isNotNull(memoryUsage)) {
                         maxMemory.set(Math.max(maxMemory.get(), memoryUsage));
-                    } else {
-                        log.debug("内存使用情况: N/A");
                     }
                 }
             }); var exec = dockerInstance.startExecCmd(execId, new ResultCallbackTemplate<ResultCallback<Frame>, Frame>() {
@@ -175,7 +169,7 @@ public class CppDockerCodeSandbox extends CodeSandboxTemplate {
                 }
             })
             ) {
-                exec.awaitCompletion(langSpecSetting().getRunTimeOut(), TimeUnit.MILLISECONDS);
+                exec.awaitCompletion(langSpecSetting(context).getRunTimeOut(), TimeUnit.MILLISECONDS);
             }
 
             ExecuteMessage executeMessage = new ExecuteMessage();

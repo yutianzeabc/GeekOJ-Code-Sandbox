@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "docker")
 public class DockerProperties {
     private String host;
-    private String image;
     private boolean firstInit;
     private Container container;
 

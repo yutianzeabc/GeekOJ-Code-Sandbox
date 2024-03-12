@@ -34,13 +34,16 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest request) {
         List<String> inputList = request.getInputList();
         String code = request.getCode();
+        String language = request.getLanguage();
 
         try {
             // 0. 初始化
             Map<String, String> context = new HashMap<>();
+            context.put("code", code);
+            context.put("language", language);
 
             // 1. 保存代码
-            File codeFile = save(code);
+            File codeFile = save(context);
 
             // 2. 编译代码
             beforeCompile(context, codeFile);
@@ -72,13 +75,16 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
 
     }
 
-    protected abstract String language();
-
-    protected LangSpecSetting langSpecSetting() {
-        return codeSandboxProperties.getLanguageSettings().get(language());
+    protected String language(Map<String, String> context) {
+        return context.get("language");
     }
 
-    protected File save(String code) {
+    protected LangSpecSetting langSpecSetting(Map<String, String> context) {
+        return codeSandboxProperties.getLanguageSettings().get(language(context));
+    }
+
+    protected File save(Map<String, String> context) {
+        String code = context.get("code");
         String userDir = System.getProperty("user.dir");
         String globalCodePathName = userDir + File.separator + codeSandboxProperties.getGlobalCodePath();
 
@@ -89,7 +95,7 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
 
         // 把用户的代码隔离存放
         String userCodeParentPath = globalCodePathName + File.separator + UUID.randomUUID();
-        String userCodePath = userCodeParentPath + File.separator + langSpecSetting().getMainFile();
+        String userCodePath = userCodeParentPath + File.separator + langSpecSetting(context).getMainFile();
         return FileUtil.writeString(code, userCodePath, StandardCharsets.UTF_8);
     }
 

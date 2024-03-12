@@ -1,4 +1,4 @@
-package cc.geektip.geekojcodesandbox.langspec.java;
+package cc.geektip.geekojcodesandbox.impl.langspec.java;
 
 import cc.geektip.geekojcodesandbox.CodeSandbox;
 import cc.geektip.geekojcodesandbox.model.ExecuteCodeRequest;

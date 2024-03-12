@@ -1,6 +1,7 @@
-package cc.geektip.geekojcodesandbox.langspec.java;
+package cc.geektip.geekojcodesandbox.impl.langspec.java;
 
 import cc.geektip.geekojcodesandbox.CodeSandbox;
+import cc.geektip.geekojcodesandbox.config.CodeSandboxProperties;
 import cc.geektip.geekojcodesandbox.docker.DockerCleanupManager;
 import cc.geektip.geekojcodesandbox.docker.DockerInstance;
 import cc.geektip.geekojcodesandbox.model.ExecuteCodeRequest;
@@ -33,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @description: JavaDockerCodeSandbox
+ * @description: DockerCodeSandbox
  * @author: Fish
  * @date: 2024/3/1
  */
@@ -45,6 +46,9 @@ public class JavaDockerCodeSandboxOld implements CodeSandbox {
     private static final String GLOBAL_JAVA_CLASS_NAME = "Main.java";
 
     private static final long TIME_OUT = 5000L;
+
+    @Resource
+    private CodeSandboxProperties codeSandboxProperties;
 
     @Resource
     private DockerInstance dockerInstance;
@@ -87,7 +91,7 @@ public class JavaDockerCodeSandboxOld implements CodeSandbox {
 
         // 3. 创建容器，把文件复制到容器内
         // 创建容器
-        final String containerId = dockerInstance.createContainer(userCodeParentPath);
+        final String containerId = dockerInstance.createContainer(codeSandboxProperties.getLanguageSettings().get("java").getImage(), userCodeParentPath);
         // 启动容器
         dockerInstance.startContainer(containerId);
 
