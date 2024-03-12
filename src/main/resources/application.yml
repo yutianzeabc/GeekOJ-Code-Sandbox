@@ -25,14 +25,14 @@ code-sandbox:
 
 docker:
   host: npipe:////./pipe/docker_engine
-  image: eclipse-temurin:17-jdk
+  image: judge-base:latest
   first-init: false
   container:
     cpu-count: 1
     memory: 100000000
     memory-swap: 0
     network-disabled: true
-    read-only-rootfs: true
+    read-only-rootfs: false
 
 logging:
   level:
