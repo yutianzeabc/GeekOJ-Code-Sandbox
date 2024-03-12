@@ -1,4 +1,4 @@
-package cc.geektip.geekojcodesandbox.langspec.java;
+package cc.geektip.geekojcodesandbox.langspec.cpp;
 
 import cc.geektip.geekojcodesandbox.CodeSandboxTemplate;
 import cc.geektip.geekojcodesandbox.docker.DockerCleanupManager;
@@ -28,13 +28,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @description: JavaDockerCodeSandbox
+ * @description: CppDockerCodeSandbox
  * @author: Fish
  * @date: 2024/3/1
  */
 @Component
 @Slf4j
-public class JavaDockerCodeSandbox extends CodeSandboxTemplate {
+public class CppDockerCodeSandbox extends CodeSandboxTemplate {
     @Resource
     private DockerInstance dockerInstance;
 
@@ -43,7 +43,7 @@ public class JavaDockerCodeSandbox extends CodeSandboxTemplate {
 
     @Override
     protected String language() {
-        return "java";
+        return "cpp";
     }
 
     @Override

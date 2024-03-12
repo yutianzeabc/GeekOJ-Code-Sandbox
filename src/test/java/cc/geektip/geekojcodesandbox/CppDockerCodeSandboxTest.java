@@ -1,6 +1,6 @@
 package cc.geektip.geekojcodesandbox;
 
-import cc.geektip.geekojcodesandbox.langspec.java.JavaDockerCodeSandbox;
+import cc.geektip.geekojcodesandbox.langspec.cpp.CppDockerCodeSandbox;
 import cc.geektip.geekojcodesandbox.model.ExecuteCodeRequest;
 import cn.hutool.core.io.resource.ResourceUtil;
 import jakarta.annotation.Resource;
@@ -19,18 +19,18 @@ import java.util.List;
  */
 @SpringBootTest
 @Slf4j
-class JavaDockerCodeSandboxTest {
+class CppDockerCodeSandboxTest {
 
     @Resource
-    private JavaDockerCodeSandbox javaDockerCodeSandbox;
+    private CppDockerCodeSandbox cppDockerCodeSandbox;
 
     @Test
     void executeCode() {
         ExecuteCodeRequest executeCodeRequest = new ExecuteCodeRequest();
         executeCodeRequest.setInputList(List.of("1 2", "3 4"));
-        String code = ResourceUtil.readStr("testCode/simpleComputeArgs/Main.java", StandardCharsets.UTF_8);
+        String code = ResourceUtil.readStr("testCode/simpleComputeArgs/Main.cpp", StandardCharsets.UTF_8);
         executeCodeRequest.setCode(code);
-        executeCodeRequest.setLanguage("java");
-        javaDockerCodeSandbox.executeCode(executeCodeRequest);
+        executeCodeRequest.setLanguage("cpp");
+        cppDockerCodeSandbox.executeCode(executeCodeRequest);
     }
 }

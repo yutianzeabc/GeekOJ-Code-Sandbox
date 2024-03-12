@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.InputStream;
 import java.net.URI;
 
 /**
@@ -151,7 +152,8 @@ public class DockerInstance {
             InspectExecResponse inspectExecResponse = dockerClient.inspectExecCmd(execId).exec();
 
             log.debug("获取执行命令状态成功，执行命令ID: {}", execId);
-            return inspectExecResponse.getExitCodeLong();
+            Long exitCode = inspectExecResponse.getExitCodeLong();
+            return exitCode == null ? -1 : exitCode;
         } catch (Exception e) {
             log.error("获取执行命令状态失败，执行命令ID: {}", execId, e);
             throw new RuntimeException(e);
@@ -167,6 +169,21 @@ public class DockerInstance {
             return statsCmd;
         } catch (Exception e) {
             log.error("获取容器状态失败，容器ID: {}", containerId, e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T extends ResultCallback<Frame>> AttachContainerCmd attachContainerCmd(String containerId, InputStream inputStream) {
+        try {
+            AttachContainerCmd attach = dockerClient.attachContainerCmd(containerId)
+                    .withStdIn(inputStream)
+                    .withStdOut(true)
+                    .withStdErr(true);
+
+            log.debug("挂接容器成功，容器ID: {}", containerId);
+            return attach;
+        } catch (Exception e) {
+            log.error("挂接容器失败，容器ID: {}", containerId, e);
             throw new RuntimeException(e);
         }
     }

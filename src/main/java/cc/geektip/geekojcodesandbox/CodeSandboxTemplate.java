@@ -35,31 +35,41 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
         List<String> inputList = request.getInputList();
         String code = request.getCode();
 
-        // 0. 初始化
-        Map<String, String> context = new HashMap<>();
+        try {
+            // 0. 初始化
+            Map<String, String> context = new HashMap<>();
 
-        // 1. 保存代码
-        File codeFile = save(code);
+            // 1. 保存代码
+            File codeFile = save(code);
 
-        // 2. 编译代码
-        beforeCompile(context, codeFile);
-        ExecuteMessage compileMessage = compile(context, codeFile);
-        afterCompile(context, compileMessage);
-        log.debug("编译信息: {}", compileMessage);
+            // 2. 编译代码
+            beforeCompile(context, codeFile);
+            ExecuteMessage compileMessage = compile(context, codeFile);
+            if (compileMessage.getExitValue() != 0) {
+                return buildUsrErrorResp(compileMessage.getErrorMessage());
+            }
+            afterCompile(context, compileMessage);
 
-        // 3. 运行代码
-        beforeRun(context, codeFile, inputList);
-        List<ExecuteMessage> executeMessageList = run(context, codeFile, inputList);
-        afterRun(context, executeMessageList);
+            // 3. 运行代码
+            beforeRun(context, codeFile, inputList);
+            List<ExecuteMessage> executeMessageList = run(context, codeFile, inputList);
+            afterRun(context, executeMessageList);
 
-        // 4. 构建响应
-        ExecuteCodeResponse executeCodeResponse = buildResp(executeMessageList);
-        log.debug("代码沙箱响应: {}", executeCodeResponse);
+            // 4. 构建响应
+            ExecuteCodeResponse executeCodeResponse = buildResp(executeMessageList);
+            log.debug("代码沙箱响应: {}", executeCodeResponse);
 
-        // 5. 清理代码
-        cleanup(codeFile);
+            // 5. 清理代码
+            cleanup(codeFile);
 
-        return executeCodeResponse;
+            // 6. 返回响应
+            return executeCodeResponse;
+
+        } catch (Exception e) {
+            log.error("代码沙箱异常: ", e);
+            return buildSysErrorResp(e);
+        }
+
     }
 
     protected abstract String language();
@@ -83,17 +93,21 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
         return FileUtil.writeString(code, userCodePath, StandardCharsets.UTF_8);
     }
 
-    protected void beforeCompile(Map<String, String> context, File codeFile) {}
+    protected void beforeCompile(Map<String, String> context, File codeFile) {
+    }
 
     protected abstract ExecuteMessage compile(Map<String, String> context, File codeFile);
 
-    protected void afterCompile(Map<String, String> context, ExecuteMessage executeMessage) {}
+    protected void afterCompile(Map<String, String> context, ExecuteMessage executeMessage) {
+    }
 
-    protected void beforeRun(Map<String, String> context, File codeFile, List<String> inputList) {}
+    protected void beforeRun(Map<String, String> context, File codeFile, List<String> inputList) {
+    }
 
     protected abstract List<ExecuteMessage> run(Map<String, String> context, File codeFile, List<String> inputList);
 
-    protected void afterRun(Map<String, String> context, List<ExecuteMessage> executeMessageList) {}
+    protected void afterRun(Map<String, String> context, List<ExecuteMessage> executeMessageList) {
+    }
 
     protected ExecuteCodeResponse buildResp(List<ExecuteMessage> executeMessageList) {
         ExecuteCodeResponse executeCodeResponse = new ExecuteCodeResponse();
