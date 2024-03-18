@@ -45,12 +45,12 @@ class DockerCodeSandboxTest {
     }
 
     @Test
-    void executeCodeGolang() {
+    void executeCodeGo() {
         ExecuteCodeRequest executeCodeRequest = new ExecuteCodeRequest();
         executeCodeRequest.setInputList(List.of("1 2", "3 4"));
         String code = ResourceUtil.readStr("testCode/simpleComputeArgs/Main.go", StandardCharsets.UTF_8);
         executeCodeRequest.setCode(code);
-        executeCodeRequest.setLanguage("golang");
+        executeCodeRequest.setLanguage("go");
         dockerCodeSandbox.executeCode(executeCodeRequest);
     }
 }

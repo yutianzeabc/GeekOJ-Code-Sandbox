@@ -153,7 +153,7 @@ public class DockerCodeSandbox extends CodeSandboxTemplate {
                 public void onNext(Frame frame) {
                     StreamType streamType = frame.getStreamType();
                     if (streamType == StreamType.STDOUT) {
-                        message.append(new String(frame.getPayload(), StandardCharsets.UTF_8));
+                        message.append(new String(frame.getPayload(), StandardCharsets.UTF_8).strip());
                     } else if (streamType == StreamType.STDERR) {
                         errorMessage.append(new String(frame.getPayload(), StandardCharsets.UTF_8));
                     }

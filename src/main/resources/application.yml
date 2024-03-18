@@ -19,7 +19,7 @@ code-sandbox:
       run-time-out: 5000
       compile-command: g++ -o /app/Main /app/Main.cpp
       run-command: /app/Main
-    golang:
+    go:
       image: golang:1.20
       main-file: main.go
       compile-time-out: 30000
