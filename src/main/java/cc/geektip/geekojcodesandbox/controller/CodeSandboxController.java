@@ -1,8 +1,8 @@
 package cc.geektip.geekojcodesandbox.controller;
 
 import cc.geektip.geekojcodesandbox.impl.DockerCodeSandbox;
-import cc.geektip.geekojcodesandbox.model.ExecuteCodeRequest;
-import cc.geektip.geekojcodesandbox.model.ExecuteCodeResponse;
+import cc.geektip.geekojcodesandbox.model.dto.ExecuteCodeRequest;
+import cc.geektip.geekojcodesandbox.model.dto.ExecuteCodeResponse;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;

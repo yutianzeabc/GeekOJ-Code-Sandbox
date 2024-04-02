@@ -3,7 +3,7 @@ package cc.geektip.geekojcodesandbox.impl;
 import cc.geektip.geekojcodesandbox.CodeSandboxTemplate;
 import cc.geektip.geekojcodesandbox.docker.DockerCleanupManager;
 import cc.geektip.geekojcodesandbox.docker.DockerInstance;
-import cc.geektip.geekojcodesandbox.model.ExecuteMessage;
+import cc.geektip.geekojcodesandbox.model.dto.ExecuteResult;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.dockerjava.api.async.ResultCallback;
@@ -51,15 +51,15 @@ public class DockerCodeSandbox extends CodeSandboxTemplate {
 
     @SneakyThrows
     @Override
-    protected ExecuteMessage compile(Map<String, String> context, File codeFile) {
-        ExecuteMessage executeMessage = new ExecuteMessage();
+    protected ExecuteResult compile(Map<String, String> context, File codeFile) {
+        ExecuteResult executeResult = new ExecuteResult();
         String[] compileCmd = langSpecSetting(context).getCompileCommand().split(" ");
         String containerId = context.get("containerId");
         String execId = dockerInstance.createExecCmd(containerId, compileCmd);
 
         // 执行结果
-        final StringBuffer message = new StringBuffer();
-        final StringBuffer errorMessage = new StringBuffer();
+        final StringBuffer output = new StringBuffer();
+        final StringBuffer errorOutput = new StringBuffer();
 
         // 记录时间
         StopWatch stopWatch = new StopWatch();
@@ -79,9 +79,9 @@ public class DockerCodeSandbox extends CodeSandboxTemplate {
             public void onNext(Frame frame) {
                 StreamType streamType = frame.getStreamType();
                 if (streamType == StreamType.STDOUT) {
-                    message.append(new String(frame.getPayload(), StandardCharsets.UTF_8));
+                    output.append(new String(frame.getPayload(), StandardCharsets.UTF_8));
                 } else if (streamType == StreamType.STDERR) {
-                    errorMessage.append(new String(frame.getPayload(), StandardCharsets.UTF_8));
+                    errorOutput.append(new String(frame.getPayload(), StandardCharsets.UTF_8));
                 }
             }
 
@@ -97,22 +97,22 @@ public class DockerCodeSandbox extends CodeSandboxTemplate {
             exec.awaitCompletion(langSpecSetting(context).getCompileTimeOut(), TimeUnit.MILLISECONDS);
         }
 
-        executeMessage.setExitValue(dockerInstance.inspectExecCmd(execId));
-        executeMessage.setMessage(message.toString());
-        executeMessage.setErrorMessage(errorMessage.toString());
-        executeMessage.setTime(time.get());
-        executeMessage.setTimeout(isTimeout.get());
+        executeResult.setExitValue(dockerInstance.inspectExecCmd(execId));
+        executeResult.setOutput(output.toString());
+        executeResult.setErrorOutput(errorOutput.toString());
+        executeResult.setTime(time.get());
+        executeResult.setTimeout(isTimeout.get());
 
-        log.debug("代码编译结果: {}", executeMessage);
+        log.debug("代码编译结果: {}", executeResult);
 
-        return executeMessage;
+        return executeResult;
     }
 
     @SneakyThrows
     @Override
-    protected List<ExecuteMessage> run(Map<String, String> context, File codeFile, List<String> inputList) {
+    protected List<ExecuteResult> run(Map<String, String> context, File codeFile, List<String> inputList) {
         String containerId = context.get("containerId");
-        List<ExecuteMessage> executeMessageList = new ArrayList<>();
+        List<ExecuteResult> executeResultList = new ArrayList<>(inputList.size());
 
         for (String inputArgs : inputList) {
 
@@ -122,8 +122,8 @@ public class DockerCodeSandbox extends CodeSandboxTemplate {
             String execId = dockerInstance.createExecCmd(containerId, cmdArray);
 
             // 执行结果
-            final StringBuffer message = new StringBuffer();
-            final StringBuffer errorMessage = new StringBuffer();
+            final StringBuffer output = new StringBuffer();
+            final StringBuffer errorOutput = new StringBuffer();
 
             // 记录时间
             StopWatch stopWatch = new StopWatch();
@@ -153,9 +153,9 @@ public class DockerCodeSandbox extends CodeSandboxTemplate {
                 public void onNext(Frame frame) {
                     StreamType streamType = frame.getStreamType();
                     if (streamType == StreamType.STDOUT) {
-                        message.append(new String(frame.getPayload(), StandardCharsets.UTF_8).strip());
+                        output.append(new String(frame.getPayload(), StandardCharsets.UTF_8).strip());
                     } else if (streamType == StreamType.STDERR) {
-                        errorMessage.append(new String(frame.getPayload(), StandardCharsets.UTF_8));
+                        errorOutput.append(new String(frame.getPayload(), StandardCharsets.UTF_8));
                     }
                 }
 
@@ -172,23 +172,23 @@ public class DockerCodeSandbox extends CodeSandboxTemplate {
                 exec.awaitCompletion(langSpecSetting(context).getRunTimeOut(), TimeUnit.MILLISECONDS);
             }
 
-            ExecuteMessage executeMessage = new ExecuteMessage();
-            executeMessage.setExitValue(dockerInstance.inspectExecCmd(execId));
-            executeMessage.setMessage(message.toString());
-            executeMessage.setErrorMessage(errorMessage.toString());
-            executeMessage.setTime(time.get());
-            executeMessage.setTimeout(isTimeout.get());
-            executeMessage.setMemory(maxMemory.get());
-            executeMessageList.add(executeMessage);
+            ExecuteResult executeResult = new ExecuteResult();
+            executeResult.setExitValue(dockerInstance.inspectExecCmd(execId));
+            executeResult.setOutput(output.toString());
+            executeResult.setErrorOutput(errorOutput.toString());
+            executeResult.setTime(time.get());
+            executeResult.setTimeout(isTimeout.get());
+            executeResult.setMemory(maxMemory.get());
+            executeResultList.add(executeResult);
 
-            log.debug("用例执行结果: {}", executeMessage);
+            log.debug("用例执行结果: {}", executeResult);
         }
 
-        return executeMessageList;
+        return executeResultList;
     }
 
     @Override
-    protected void afterRun(Map<String, String> context, List<ExecuteMessage> executeMessageList) {
+    protected void afterRun(Map<String, String> context, List<ExecuteResult> executeMessageList) {
         String containerId = context.get("containerId");
         dockerCleanupManager.submitCleanupTask(containerId);
     }

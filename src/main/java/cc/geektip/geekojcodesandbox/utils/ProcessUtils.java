@@ -1,6 +1,6 @@
 package cc.geektip.geekojcodesandbox.utils;
 
-import cc.geektip.geekojcodesandbox.model.ExecuteMessage;
+import cc.geektip.geekojcodesandbox.model.dto.ExecuteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StopWatch;
 
@@ -25,15 +25,15 @@ public class ProcessUtils {
      * @param opName
      * @return
      */
-    public static ExecuteMessage runProcessAndGetMessage(Process runProcess, String opName) {
-        ExecuteMessage executeMessage = new ExecuteMessage();
+    public static ExecuteResult runProcessAndGetMessage(Process runProcess, String opName) {
+        ExecuteResult executeResult = new ExecuteResult();
 
         try {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             // 等待程序执行，获取错误码
             long exitValue = runProcess.waitFor();
-            executeMessage.setExitValue(exitValue);
+            executeResult.setExitValue(exitValue);
             // 正常退出
             if (exitValue == 0) {
                 log.info(opName + "成功");
@@ -46,7 +46,7 @@ public class ProcessUtils {
                 while ((compileOutputLine = bufferedReader.readLine()) != null) {
                     outputStrList.add(compileOutputLine);
                 }
-                executeMessage.setMessage(String.join("\n", outputStrList));
+                executeResult.setOutput(String.join("\n", outputStrList));
             } else {
                 // 异常退出
                 log.error(opName + "失败，错误码: " + exitValue);
@@ -58,7 +58,7 @@ public class ProcessUtils {
                 while ((compileOutputLine = bufferedReader.readLine()) != null) {
                     outputStrList.add(compileOutputLine);
                 }
-                executeMessage.setMessage(String.join("\n", outputStrList));
+                executeResult.setOutput(String.join("\n", outputStrList));
 
                 // 分批获取进程的错误输出
                 BufferedReader errorBufferedReader = new BufferedReader(new InputStreamReader(runProcess.getErrorStream(), PROCESS_CHARSET));
@@ -69,16 +69,16 @@ public class ProcessUtils {
                 while ((errorCompileOutputLine = errorBufferedReader.readLine()) != null) {
                     errorOutputStrList.add(errorCompileOutputLine);
                 }
-                executeMessage.setErrorMessage(String.join("\n", errorOutputStrList));
+                executeResult.setErrorOutput(String.join("\n", errorOutputStrList));
             }
             stopWatch.stop();
-            executeMessage.setTime(stopWatch.lastTaskInfo().getTimeMillis());
+            executeResult.setTime(stopWatch.lastTaskInfo().getTimeMillis());
         } catch (Exception e) {
             log.error("运行进程失败: ", e);
         } finally {
             runProcess.destroy();
         }
-        return executeMessage;
+        return executeResult;
 
     }
 
@@ -89,8 +89,8 @@ public class ProcessUtils {
      * @param args
      * @return
      */
-    public static ExecuteMessage runInteractProcessAndGetMessage(Process runProcess, String args) {
-        ExecuteMessage executeMessage = new ExecuteMessage();
+    public static ExecuteResult runInteractProcessAndGetMessage(Process runProcess, String args) {
+        ExecuteResult executeMessage = new ExecuteResult();
 
         try (OutputStream outputStream = runProcess.getOutputStream();
              OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
@@ -105,7 +105,7 @@ public class ProcessUtils {
             while ((compileOutputLine = bufferedReader.readLine()) != null) {
                 compileOutputStringBuilder.append(compileOutputLine);
             }
-            executeMessage.setMessage(compileOutputStringBuilder.toString());
+            executeMessage.setOutput(compileOutputStringBuilder.toString());
         } catch (Exception e) {
             log.error("运行交互式进程失败: ", e);
         } finally {

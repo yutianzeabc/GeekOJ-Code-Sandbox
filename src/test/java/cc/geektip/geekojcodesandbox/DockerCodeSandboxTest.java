@@ -1,7 +1,7 @@
 package cc.geektip.geekojcodesandbox;
 
 import cc.geektip.geekojcodesandbox.impl.DockerCodeSandbox;
-import cc.geektip.geekojcodesandbox.model.ExecuteCodeRequest;
+import cc.geektip.geekojcodesandbox.model.dto.ExecuteCodeRequest;
 import cn.hutool.core.io.resource.ResourceUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
