@@ -7,7 +7,7 @@ import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public class DockerInstance {
 
     @PostConstruct
     public void init() {
-        dockerClient = DockerClientBuilder.getInstance().withDockerHttpClient(new ApacheDockerHttpClient.Builder().dockerHost(URI.create(dockerProperties.getHost())).build()).build();
+        dockerClient = DockerClientBuilder.getInstance().withDockerHttpClient(new ZerodepDockerHttpClient.Builder().dockerHost(URI.create(dockerProperties.getHost())).build()).build();
         if (dockerProperties.isFirstInit()) {
             log.info("首次启动，拉取评测镜像");
 
@@ -124,7 +124,7 @@ public class DockerInstance {
                     .withAttachStdout(true)
                     .withAttachStderr(true)
                     .withAttachStdin(true)
-                    .withTty(true)
+                    .withTty(false)
                     .withCmd(cmd)
                     .exec();
 
@@ -143,6 +143,20 @@ public class DockerInstance {
 
             log.debug("启动执行命令成功，执行命令ID: {}", execId);
             return exec;
+        } catch (Exception e) {
+            log.error("启动执行命令失败，执行命令ID: {}", execId, e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T extends ResultCallback<Frame>> ExecStartCmd startExecCmdWithInput(String execId, InputStream inputStream) {
+        try {
+            ExecStartCmd execStartCmd = dockerClient.execStartCmd(execId)
+                    .withDetach(false)
+                    .withStdIn(inputStream);
+
+            log.debug("启动执行命令成功，执行命令ID: {}", execId);
+            return execStartCmd;
         } catch (Exception e) {
             log.error("启动执行命令失败，执行命令ID: {}", execId, e);
             throw new RuntimeException(e);

@@ -10,7 +10,7 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
-import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class DockerDemo {
     public static void main(String[] args) {
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder().withDockerHost("npipe:////./pipe/docker_engine").build();
 
-        try (DockerClient dockerClient = DockerClientBuilder.getInstance().withDockerHttpClient(new ApacheDockerHttpClient.Builder().dockerHost(config.getDockerHost()).build()).build()) {
+        try (DockerClient dockerClient = DockerClientBuilder.getInstance().withDockerHttpClient(new ZerodepDockerHttpClient.Builder().dockerHost(config.getDockerHost()).build()).build()) {
             //        PingCmd pingCmd = dockerClient.pingCmd();
 //        pingCmd.exec();
             // 拉取镜像

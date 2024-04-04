@@ -28,7 +28,7 @@ class DockerCodeSandboxTest {
     void executeCodeJava() {
         ExecuteCodeRequest executeCodeRequest = new ExecuteCodeRequest();
         executeCodeRequest.setInputList(List.of("1 2", "3 4"));
-        String code = ResourceUtil.readStr("testCode/simpleComputeArgs/Main.java", StandardCharsets.UTF_8);
+        String code = ResourceUtil.readStr("testCode/simpleCompute/Main.java", StandardCharsets.UTF_8);
         executeCodeRequest.setCode(code);
         executeCodeRequest.setLanguage("java");
         dockerCodeSandbox.executeCode(executeCodeRequest);
@@ -38,7 +38,7 @@ class DockerCodeSandboxTest {
     void executeCodeCpp() {
         ExecuteCodeRequest executeCodeRequest = new ExecuteCodeRequest();
         executeCodeRequest.setInputList(List.of("1 2", "3 4"));
-        String code = ResourceUtil.readStr("testCode/simpleComputeArgs/Main.cpp", StandardCharsets.UTF_8);
+        String code = ResourceUtil.readStr("testCode/simpleCompute/Main.cpp", StandardCharsets.UTF_8);
         executeCodeRequest.setCode(code);
         executeCodeRequest.setLanguage("cpp");
         dockerCodeSandbox.executeCode(executeCodeRequest);
