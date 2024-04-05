@@ -4,7 +4,7 @@ import cc.geektip.geekojcodesandbox.CodeSandboxTemplate;
 import cc.geektip.geekojcodesandbox.docker.DockerCleanupManager;
 import cc.geektip.geekojcodesandbox.docker.DockerDao;
 import cc.geektip.geekojcodesandbox.model.dto.ExecuteResult;
-import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.async.ResultCallbackTemplate;
@@ -30,13 +30,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @description: DockerAcmCodeSandbox
+ * @description: DockerArgsCodeSandbox
  * @author: Fish
  * @date: 2024/3/1
  */
 @Component
 @Slf4j
-public class DockerAcmCodeSandbox extends CodeSandboxTemplate {
+public class DockerArgsCodeSandbox extends CodeSandboxTemplate {
     @Resource
     private DockerDao dockerDao;
 
@@ -117,8 +117,11 @@ public class DockerAcmCodeSandbox extends CodeSandboxTemplate {
         List<ExecuteResult> executeResultList = new ArrayList<>(inputList.size());
 
         for (String inputArgs : inputList) {
+
+            String[] inputArgsArray = inputArgs.split(" ");
             String[] runCommand = langSpecSetting(context).getRunCommand().split(" ");
-            String execId = dockerDao.createExecCmd(containerId, runCommand);
+            String[] cmdArray = ArrayUtil.append(runCommand, inputArgsArray);
+            String execId = dockerDao.createExecCmd(containerId, cmdArray);
 
             // 记录时间
             StopWatch stopWatch = new StopWatch();
@@ -139,26 +142,25 @@ public class DockerAcmCodeSandbox extends CodeSandboxTemplate {
                         maxMemory.set(Math.max(maxMemory.get(), memoryUsage));
                     }
                 }
-            });
-                 var exec = dockerDao.startExecCmdWithInput(execId, IoUtil.toStream(inputArgs + "\n", StandardCharsets.UTF_8));
-            ) {
-                exec.exec(new ExecStartResultCallback(outputStream, errorStream) {
-                    @Override
-                    public void onStart(Closeable stream) {
-                        super.onStart(stream);
-                        log.debug("用例执行开始: {}", inputArgs);
-                        stopWatch.start();
-                    }
+            }); var exec = dockerDao.startExecCmd(execId, new ExecStartResultCallback(outputStream, errorStream) {
+                @Override
+                public void onStart(Closeable stream) {
+                    super.onStart(stream);
+                    log.debug("用例执行开始: {}", inputArgs);
+                    stopWatch.start();
+                }
 
-                    @Override
-                    public void onComplete() {
-                        stopWatch.stop();
-                        isTimeout.set(false);
-                        time.set(stopWatch.getTotalTimeMillis());
-                        log.debug("用例执行完成");
-                        super.onComplete();
-                    }
-                }).awaitCompletion(langSpecSetting(context).getRunTimeOut(), TimeUnit.MILLISECONDS);
+                @Override
+                public void onComplete() {
+                    stopWatch.stop();
+                    isTimeout.set(false);
+                    time.set(stopWatch.getTotalTimeMillis());
+                    log.debug("用例执行完成");
+                    super.onComplete();
+                }
+            })
+            ) {
+                exec.awaitCompletion(langSpecSetting(context).getRunTimeOut(), TimeUnit.MILLISECONDS);
             }
 
             ExecuteResult executeResult = new ExecuteResult();

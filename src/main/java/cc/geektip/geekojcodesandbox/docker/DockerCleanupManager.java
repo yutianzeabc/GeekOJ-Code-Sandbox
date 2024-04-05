@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class DockerCleanupManager {
 
     @Resource
-    private DockerInstance dockerInstance;
+    private DockerDao dockerDao;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -30,8 +30,8 @@ public class DockerCleanupManager {
     public void submitCleanupTask(String containerId) {
         log.debug("提交清理任务: {}", containerId);
         executorService.submit(() -> {
-            dockerInstance.stopContainer(containerId);
-            dockerInstance.removeContainer(containerId);
+            dockerDao.stopContainer(containerId);
+            dockerDao.removeContainer(containerId);
             log.info("容器已停止并移除: {}", containerId);
         });
     }
