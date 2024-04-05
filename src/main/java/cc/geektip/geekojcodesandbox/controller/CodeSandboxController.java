@@ -1,6 +1,6 @@
 package cc.geektip.geekojcodesandbox.controller;
 
-import cc.geektip.geekojcodesandbox.impl.DockerCodeSandbox;
+import cc.geektip.geekojcodesandbox.impl.DockerAcmCodeSandbox;
 import cc.geektip.geekojcodesandbox.model.dto.ExecuteCodeRequest;
 import cc.geektip.geekojcodesandbox.model.dto.ExecuteCodeResponse;
 import jakarta.annotation.Resource;
@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CodeSandboxController {
     @Resource
-    DockerCodeSandbox dockerCodeSandbox;
+    DockerAcmCodeSandbox dockerAcmCodeSandbox;
 
     @PostMapping("/executeCode")
     public ExecuteCodeResponse executeCode(@Valid @RequestBody ExecuteCodeRequest executeCodeRequest) {
-        ExecuteCodeResponse executeCodeResponse = dockerCodeSandbox.executeCode(executeCodeRequest);
+        ExecuteCodeResponse executeCodeResponse = dockerAcmCodeSandbox.executeCode(executeCodeRequest);
         if (executeCodeResponse == null) {
             throw new RuntimeException("代码沙箱执行失败");
         }
