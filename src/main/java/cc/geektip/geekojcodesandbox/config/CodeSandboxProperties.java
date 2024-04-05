@@ -19,6 +19,8 @@ public class CodeSandboxProperties {
     private String xServiceKey;
     // 代码沙箱全局代码路径
     private String globalCodePath;
+    // 代码沙箱评测模式
+    private String judgeMode;
     // 代码沙箱语言设置
     private Map<String, LangSpecSetting> languageSettings;
 }

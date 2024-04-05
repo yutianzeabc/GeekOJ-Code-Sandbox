@@ -1,6 +1,6 @@
 package cc.geektip.geekojcodesandbox;
 
-import cc.geektip.geekojcodesandbox.impl.DockerAcmCodeSandbox;
+import cc.geektip.geekojcodesandbox.impl.DockerArgsCodeSandbox;
 import cc.geektip.geekojcodesandbox.model.dto.ExecuteCodeRequest;
 import cn.hutool.core.io.resource.ResourceUtil;
 import jakarta.annotation.Resource;
@@ -19,38 +19,38 @@ import java.util.List;
  */
 @SpringBootTest
 @Slf4j
-class DockerAcmCodeSandboxTest {
+class DockerArgsCodeSandboxTest {
 
     @Resource
-    private DockerAcmCodeSandbox dockerAcmCodeSandbox;
+    private DockerArgsCodeSandbox dockerArgsCodeSandbox;
 
     @Test
     void executeCodeJava() {
         ExecuteCodeRequest executeCodeRequest = new ExecuteCodeRequest();
         executeCodeRequest.setInputList(List.of("1 2", "3 4"));
-        String code = ResourceUtil.readStr("testCode/simpleCompute/Main.java", StandardCharsets.UTF_8);
+        String code = ResourceUtil.readStr("testCode/simpleComputeArgs/Main.java", StandardCharsets.UTF_8);
         executeCodeRequest.setCode(code);
         executeCodeRequest.setLanguage("java");
-        dockerAcmCodeSandbox.executeCode(executeCodeRequest);
+        dockerArgsCodeSandbox.executeCode(executeCodeRequest);
     }
 
     @Test
     void executeCodeCpp() {
         ExecuteCodeRequest executeCodeRequest = new ExecuteCodeRequest();
         executeCodeRequest.setInputList(List.of("1 2", "3 4"));
-        String code = ResourceUtil.readStr("testCode/simpleCompute/Main.cpp", StandardCharsets.UTF_8);
+        String code = ResourceUtil.readStr("testCode/simpleComputeArgs/Main.cpp", StandardCharsets.UTF_8);
         executeCodeRequest.setCode(code);
         executeCodeRequest.setLanguage("cpp");
-        dockerAcmCodeSandbox.executeCode(executeCodeRequest);
+        dockerArgsCodeSandbox.executeCode(executeCodeRequest);
     }
 
     @Test
     void executeCodeGo() {
         ExecuteCodeRequest executeCodeRequest = new ExecuteCodeRequest();
         executeCodeRequest.setInputList(List.of("1 2", "3 4"));
-        String code = ResourceUtil.readStr("testCode/simpleCompute/Main.go", StandardCharsets.UTF_8);
+        String code = ResourceUtil.readStr("testCode/simpleComputeArgs/Main.go", StandardCharsets.UTF_8);
         executeCodeRequest.setCode(code);
         executeCodeRequest.setLanguage("go");
-        dockerAcmCodeSandbox.executeCode(executeCodeRequest);
+        dockerArgsCodeSandbox.executeCode(executeCodeRequest);
     }
 }
