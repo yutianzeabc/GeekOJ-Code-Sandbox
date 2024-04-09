@@ -2,6 +2,7 @@ package cc.geektip.geekojcodesandbox.docker;
 
 import cc.geektip.geekojcodesandbox.config.CodeSandboxProperties;
 import cc.geektip.geekojcodesandbox.config.DockerProperties;
+import cn.hutool.core.io.unit.DataSize;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.*;
@@ -59,7 +60,7 @@ public class DockerDao {
 
     public String createContainer(String image, String appPath) {
         HostConfig hostConfig = new HostConfig()
-                .withMemory(dockerProperties.getContainer().getMemory())
+                .withMemory(DataSize.ofMegabytes(dockerProperties.getContainer().getMemory()).toBytes())
                 .withMemorySwap(dockerProperties.getContainer().getMemorySwap())
                 .withCpuCount(dockerProperties.getContainer().getCpuCount())
                 .withReadonlyRootfs(dockerProperties.getContainer().isReadOnlyRootfs())
@@ -185,21 +186,6 @@ public class DockerDao {
             return statsCmd;
         } catch (Exception e) {
             log.error("获取容器状态失败，容器ID: {}", containerId, e);
-            throw new RuntimeException(e);
-        }
-    }
-
-    public <T extends ResultCallback<Frame>> AttachContainerCmd attachContainerCmd(String containerId, InputStream inputStream) {
-        try {
-            AttachContainerCmd attach = dockerClient.attachContainerCmd(containerId)
-                    .withStdIn(inputStream)
-                    .withStdOut(true)
-                    .withStdErr(true);
-
-            log.debug("挂接容器成功，容器ID: {}", containerId);
-            return attach;
-        } catch (Exception e) {
-            log.error("挂接容器失败，容器ID: {}", containerId, e);
             throw new RuntimeException(e);
         }
     }

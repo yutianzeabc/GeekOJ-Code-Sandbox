@@ -72,7 +72,7 @@ public class ProcessUtils {
                 executeResult.setErrorOutput(String.join("\n", errorOutputStrList));
             }
             stopWatch.stop();
-            executeResult.setTime(stopWatch.lastTaskInfo().getTimeMillis());
+            executeResult.setTime(stopWatch.getLastTaskTimeMillis());
         } catch (Exception e) {
             log.error("运行进程失败: ", e);
         } finally {

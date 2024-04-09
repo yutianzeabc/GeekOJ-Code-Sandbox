@@ -32,7 +32,7 @@ public class DockerCleanupManager {
         executorService.submit(() -> {
             dockerDao.stopContainer(containerId);
             dockerDao.removeContainer(containerId);
-            log.info("容器已停止并移除: {}", containerId);
+            log.debug("容器已停止并移除: {}", containerId);
         });
     }
 

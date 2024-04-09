@@ -4,6 +4,7 @@ import cc.geektip.geekojcodesandbox.CodeSandboxTemplate;
 import cc.geektip.geekojcodesandbox.docker.DockerCleanupManager;
 import cc.geektip.geekojcodesandbox.docker.DockerDao;
 import cc.geektip.geekojcodesandbox.model.dto.ExecuteResult;
+import cn.hutool.core.io.unit.DataSize;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.dockerjava.api.async.ResultCallback;
@@ -169,7 +170,7 @@ public class DockerArgsCodeSandbox extends CodeSandboxTemplate {
             executeResult.setErrorOutput(errorStream.toString(StandardCharsets.UTF_8).stripTrailing());
             executeResult.setTime(time.get());
             executeResult.setTimeout(isTimeout.get());
-            executeResult.setMemory(maxMemory.get());
+            executeResult.setMemory(DataSize.ofBytes(maxMemory.get()).toMegabytes());
             executeResultList.add(executeResult);
 
             outputStream.close();
@@ -182,7 +183,7 @@ public class DockerArgsCodeSandbox extends CodeSandboxTemplate {
     }
 
     @Override
-    protected void afterRun(Map<String, String> context, List<ExecuteResult> executeMessageList) {
+    protected void beforeExit(Map<String, String> context) {
         String containerId = context.get("containerId");
         dockerCleanupManager.submitCleanupTask(containerId);
     }

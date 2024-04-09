@@ -1,6 +1,17 @@
 server:
   port: 8090
 
+spring:
+  application:
+    name: geekoj-code-sandbox
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        server-addr: link:8848
+        username: nacos
+        password: nacos
+
 code-sandbox:
   x-service-key: 889b6b14-cdc0-4378-8fa5-6488a4b1f2f7
   global-code-path: tmpCode
@@ -26,14 +37,14 @@ code-sandbox:
       run-time-out: 5000
       compile-command: go build -o /app/main /app/main.go
       run-command: /app/main
-  judge-mode: acm
+  judge-mode: args
 
 docker:
   host: npipe:////./pipe/docker_engine
   first-init: false
   container:
     cpu-count: 1
-    memory: 1073741824
+    memory: 256 # MB
     memory-swap: 0
     network-disabled: true
     read-only-rootfs: false

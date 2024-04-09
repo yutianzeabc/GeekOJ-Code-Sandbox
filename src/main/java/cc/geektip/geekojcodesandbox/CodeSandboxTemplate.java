@@ -47,38 +47,42 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
         try {
             beforeCompile(context, codeFile);
             compileResult = compile(context, codeFile);
+            afterCompile(context, compileResult);
             if (compileResult.getExitValue() != 0) {
+                beforeExit(context);
                 return buildCompileErrorResp(new Exception(compileResult.getErrorOutput()));
             }
-            afterCompile(context, compileResult);
         } catch (Exception e) {
             log.error("代码沙箱异常: ", e);
-            return buildRunErrorResp(e);
+            beforeExit(context);
+            return buildCompileErrorResp(e);
         }
 
         // 3. 运行代码
+        // 4. 清理代码
         List<ExecuteResult> executeMessageList;
         try {
             beforeRun(context, codeFile, inputList);
             executeMessageList = run(context, codeFile, inputList);
             ExecuteResult lastExecuteMessage = executeMessageList.get(executeMessageList.size() - 1);
+            afterRun(context, executeMessageList);
+            cleanup(codeFile);
             if (lastExecuteMessage.getExitValue() != 0) {
+                beforeExit(context);
                 return buildRunErrorResp(new Exception(lastExecuteMessage.getErrorOutput()));
             }
-            afterRun(context, executeMessageList);
         } catch (Exception e) {
             log.error("代码沙箱异常: ", e);
+            beforeExit(context);
             return buildRunErrorResp(e);
         }
 
-        // 4. 构建响应
+        // 5. 构建响应
         ExecuteCodeResponse executeCodeResponse = buildResp(executeMessageList);
         log.debug("代码沙箱响应: {}", executeCodeResponse);
 
-        // 5. 清理代码
-        cleanup(codeFile);
-
         // 6. 返回响应
+        beforeExit(context);
         return executeCodeResponse;
 
     }
@@ -123,6 +127,9 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
     protected void afterRun(Map<String, String> context, List<ExecuteResult> executeMessageList) {
     }
 
+    protected void beforeExit(Map<String, String> context) {
+    }
+
     protected ExecuteCodeResponse buildResp(List<ExecuteResult> executeResultList) {
         ExecuteCodeResponse executeCodeResponse = new ExecuteCodeResponse();
         executeCodeResponse.setCode(ExecuteCodeStatusEnum.SUCCESS.getValue());
@@ -138,7 +145,7 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
             if (!del) {
                 log.error("代码缓存删除失败");
             } else {
-                log.info("代码缓存删除成功");
+                log.debug("代码缓存删除成功");
             }
         }
     }
