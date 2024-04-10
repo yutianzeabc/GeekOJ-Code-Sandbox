@@ -58,6 +58,16 @@ public class DockerDao {
         }
     }
 
+    public boolean pingCheck() {
+        try {
+            dockerClient.pingCmd().exec();
+            return true;
+        } catch (Exception e) {
+            log.error("Ping检查失败: ", e);
+            return false;
+        }
+    }
+
     public String createContainer(String image, String appPath) {
         HostConfig hostConfig = new HostConfig()
                 .withMemory(DataSize.ofMegabytes(dockerProperties.getContainer().getMemory()).toBytes())
