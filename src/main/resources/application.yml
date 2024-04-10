@@ -1,19 +1,20 @@
-server:
-  port: 8090
-
 spring:
   application:
     name: geekoj-code-sandbox
+  profiles:
+    active: ${geekoj.profiles.active}
   cloud:
     nacos:
       discovery:
+        heart-beat:
+          enabled: true
         enabled: true
-        server-addr: link:8848
-        username: nacos
-        password: nacos
-
+        server-addr: ${geekoj.nacos.host}:${geekoj.nacos.port}
+        username: ${geekoj.nacos.username}
+        password: ${geekoj.nacos.password}
 code-sandbox:
-  x-service-key: 889b6b14-cdc0-4378-8fa5-6488a4b1f2f7
+  judge-mode: ${geekoj.code-sandbox.judge-mode}
+  x-service-key: ${geekoj.code-sandbox.x-service-key}
   global-code-path: tmpCode
   language-settings:
     java:
@@ -37,18 +38,12 @@ code-sandbox:
       run-time-out: 5000
       compile-command: go build -o /app/main /app/main.go
       run-command: /app/main
-  judge-mode: args
-
 docker:
-  host: npipe:////./pipe/docker_engine
-  first-init: false
+  host: ${geekoj.code-sandbox.docker.host}
+  first-init: ${geekoj.code-sandbox.docker.first-init}
   container:
-    cpu-count: 1
-    memory: 256 # MB
+    cpu-count: ${geekoj.code-sandbox.docker.container.cpu-count}
+    memory: ${geekoj.code-sandbox.docker.container.memory} # MB
     memory-swap: 0
     network-disabled: true
     read-only-rootfs: false
-
-logging:
-  level:
-    cc.geektip.geekojcodesandbox: DEBUG
