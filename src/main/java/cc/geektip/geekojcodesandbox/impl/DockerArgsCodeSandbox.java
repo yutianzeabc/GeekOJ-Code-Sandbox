@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -70,7 +69,7 @@ public class DockerArgsCodeSandbox extends CodeSandboxTemplate {
         StopWatch stopWatch = new StopWatch();
         final AtomicLong time = new AtomicLong();
         // 判断是否超时
-        final AtomicBoolean isTimeout = new AtomicBoolean(true);
+        boolean isFinished;
 
         try (var exec = dockerDao.startExecCmd(execId, new ResultCallbackTemplate<ResultCallback<Frame>, Frame>() {
             @Override
@@ -93,20 +92,19 @@ public class DockerArgsCodeSandbox extends CodeSandboxTemplate {
             @Override
             public void onComplete() {
                 stopWatch.stop();
-                isTimeout.set(false);
                 time.set(stopWatch.getTotalTimeMillis());
                 log.debug("编译完成");
                 super.onComplete();
             }
         })) {
-            exec.awaitCompletion(langSpecSetting(context).getCompileTimeOut(), TimeUnit.MILLISECONDS);
+            isFinished = exec.awaitCompletion(langSpecSetting(context).getCompileTimeOut(), TimeUnit.MILLISECONDS);
         }
 
         executeResult.setExitValue(dockerDao.inspectExecCmd(execId));
         executeResult.setOutput(output.toString());
         executeResult.setErrorOutput(errorOutput.toString());
         executeResult.setTime(time.get());
-        executeResult.setTimeout(isTimeout.get());
+        executeResult.setTimeout(!isFinished);
 
         log.debug("代码编译结果: {}", executeResult);
 
@@ -130,7 +128,7 @@ public class DockerArgsCodeSandbox extends CodeSandboxTemplate {
             StopWatch stopWatch = new StopWatch();
             final AtomicLong time = new AtomicLong();
             // 判断是否超时
-            final AtomicBoolean isTimeout = new AtomicBoolean(true);
+            boolean isFinished;
             // 判断是否超内存
             final AtomicLong maxMemory = new AtomicLong(0L);
             // 执行结果
@@ -156,14 +154,13 @@ public class DockerArgsCodeSandbox extends CodeSandboxTemplate {
                 @Override
                 public void onComplete() {
                     stopWatch.stop();
-                    isTimeout.set(false);
                     time.set(stopWatch.getTotalTimeMillis());
                     log.debug("用例执行完成");
                     super.onComplete();
                 }
             })
             ) {
-                exec.awaitCompletion(langSpecSetting(context).getRunTimeOut(), TimeUnit.MILLISECONDS);
+                isFinished = exec.awaitCompletion(langSpecSetting(context).getRunTimeOut(), TimeUnit.MILLISECONDS);
             }
 
             ExecuteResult executeResult = new ExecuteResult();
@@ -171,7 +168,7 @@ public class DockerArgsCodeSandbox extends CodeSandboxTemplate {
             executeResult.setOutput(outputStream.toString(StandardCharsets.UTF_8).stripTrailing());
             executeResult.setErrorOutput(errorStream.toString(StandardCharsets.UTF_8).stripTrailing());
             executeResult.setTime(time.get());
-            executeResult.setTimeout(isTimeout.get());
+            executeResult.setTimeout(!isFinished);
             executeResult.setMemory(DataSize.ofBytes(maxMemory.get()).toMegabytes());
             executeResultList.add(executeResult);
 
