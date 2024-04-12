@@ -20,4 +20,4 @@ geekoj:
         memory: ${DOCKER_CONTAINER_MEMORY:256}
 logging:
   level:
-    cc.geektip.geekojcodesandbox: INFO
+    cc.geektip.geekojcodesandbox: DEBUG
