@@ -18,7 +18,7 @@ code-sandbox:
   global-code-path: tmpCode
   language-settings:
     java:
-      image: eclipse-temurin:17-jdk
+      image: ibm-semeru-runtimes:open-17-jre-jammy
       main-file: Main.java
       compile-time-out: 30000
       run-time-out: 5000
