@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * @description: WebConfig
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/12
  */
 @Configuration

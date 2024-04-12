@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * @description: 无限占用空间（浪费系统内存）
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/7
  */
 public class MemoryError {

@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * @description: CodeSandboxProperties
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/11
  */
 @Data

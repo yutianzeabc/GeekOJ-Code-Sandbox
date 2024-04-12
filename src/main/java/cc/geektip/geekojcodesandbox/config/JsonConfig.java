@@ -9,7 +9,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 /**
  * @description: JsonConfig
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/27
  */
 @JsonComponent

@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 /**
  * @description: 向服务器写文件（植入危险程序）
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/7
  */
 public class WriteFileError {

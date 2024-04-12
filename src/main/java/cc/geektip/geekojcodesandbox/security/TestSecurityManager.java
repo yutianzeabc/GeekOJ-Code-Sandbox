@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 
 /**
  * @description: 测试安全管理器
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/7
  */
 public class TestSecurityManager {

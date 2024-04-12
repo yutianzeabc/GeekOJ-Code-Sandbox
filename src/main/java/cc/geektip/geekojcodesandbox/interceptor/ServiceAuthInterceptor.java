@@ -2,7 +2,7 @@ package cc.geektip.geekojcodesandbox.interceptor;
 
 /**
  * @description: 服务鉴权拦截器
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/12
  */
 

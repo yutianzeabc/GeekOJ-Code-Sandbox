@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /**
  * @description: 全局异常处理器
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/12
  */
 @ControllerAdvice

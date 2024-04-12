@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @description: 代码沙箱管理类
- * @author: Fish
+ * @author: Bill Yu
  */
 @Component
 public class CodeSandboxManager {

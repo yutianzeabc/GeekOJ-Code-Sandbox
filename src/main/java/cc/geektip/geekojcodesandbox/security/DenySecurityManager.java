@@ -4,7 +4,7 @@ import java.security.Permission;
 
 /**
  * @description: 禁用所有权限安全管理器
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/7
  */
 public class DenySecurityManager extends SecurityManager {

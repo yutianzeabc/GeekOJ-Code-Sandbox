@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * @description: 进程工具类，用于处理进程的执行信息，包括正常输出和错误输出，以及错误码等信息
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/1
  */
 @Slf4j

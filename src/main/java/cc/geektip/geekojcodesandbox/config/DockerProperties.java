@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * @description: DockerProperties
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/8
  */
 @Data

@@ -2,6 +2,7 @@ package cc.geektip.geekojcodesandbox;
 
 import cc.geektip.geekojcodesandbox.config.CodeSandboxProperties;
 import cc.geektip.geekojcodesandbox.config.LangSpecSetting;
+import cc.geektip.geekojcodesandbox.enums.SandboxErrorEnum;
 import cc.geektip.geekojcodesandbox.model.dto.ExecuteCodeRequest;
 import cc.geektip.geekojcodesandbox.model.dto.ExecuteCodeResponse;
 import cc.geektip.geekojcodesandbox.model.dto.ExecuteResult;
@@ -19,7 +20,7 @@ import java.util.Map;
 
 /**
  * @description: 代码沙箱模板类，用于定义代码沙箱的基本流程，包括保存代码、编译代码、运行代码、构建响应、清理代码等
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/11
  */
 @Slf4j
@@ -48,6 +49,10 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
             beforeCompile(context, codeFile);
             compileResult = compile(context, codeFile);
             afterCompile(context, compileResult);
+            if (compileResult.isTimeout()) {
+                beforeExit(context);
+                return buildCompileErrorResp(new Exception(SandboxErrorEnum.CODE_COMPILE_TLE.getMsg()));
+            }
             if (compileResult.getExitValue() != 0) {
                 beforeExit(context);
                 return buildCompileErrorResp(new Exception(compileResult.getErrorOutput()));
@@ -67,6 +72,10 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
             ExecuteResult lastExecuteMessage = executeMessageList.get(executeMessageList.size() - 1);
             afterRun(context, executeMessageList);
             cleanup(codeFile);
+            if (lastExecuteMessage.isTimeout()) {
+                beforeExit(context);
+                return buildRunErrorResp(new Exception(SandboxErrorEnum.CODE_RUN_TLE.getMsg()));
+            }
             if (lastExecuteMessage.getExitValue() != 0) {
                 beforeExit(context);
                 return buildRunErrorResp(new Exception(lastExecuteMessage.getErrorOutput()));
@@ -170,7 +179,7 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
      * @return 错误响应
      */
     protected ExecuteCodeResponse buildRunErrorResp(Exception e) {
-       return ExecuteCodeResponse.builder()
+        return ExecuteCodeResponse.builder()
                 .code(ExecuteCodeStatusEnum.RUN_FAILED.getValue())
                 .msg(e.getMessage())
                 .build();

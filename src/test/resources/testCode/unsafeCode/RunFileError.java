@@ -5,7 +5,7 @@ import java.io.InputStreamReader;
 
 /**
  * @description: 运行其他程序（比如危险木马）
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/7
  */
 public class Main {

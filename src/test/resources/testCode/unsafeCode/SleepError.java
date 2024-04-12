@@ -1,6 +1,6 @@
 /**
  * @description: 无限睡眠（阻塞程序执行）
- * @author: Fish
+ * @author: Bill Yu
  * @date: 2024/3/5
  */
 public class Main {
