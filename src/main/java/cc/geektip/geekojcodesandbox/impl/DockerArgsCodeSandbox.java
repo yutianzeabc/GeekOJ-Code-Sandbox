@@ -47,7 +47,9 @@ public class DockerArgsCodeSandbox extends CodeSandboxTemplate {
 
     @Override
     protected void beforeCompile(Map<String, String> context, File codeFile) {
-        String containerId = dockerDao.createContainer(langSpecSetting(context).getImage(), codeFile.getParent());
+        String hostCodeCachePath = codeSandboxProperties.getHostCodeCachePath();
+        String hostUserCodePath = hostCodeCachePath + File.separator + context.get("userCodeUuid");
+        String containerId = dockerDao.createContainer(langSpecSetting(context).getImage(), hostUserCodePath);
         context.put("containerId", containerId);
         dockerDao.startContainer(containerId);
     }

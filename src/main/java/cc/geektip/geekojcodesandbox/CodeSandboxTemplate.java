@@ -106,16 +106,17 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
 
     protected File save(Map<String, String> context) {
         String code = context.get("code");
-        String userDir = System.getProperty("user.dir");
-        String globalCodePathName = userDir + File.separator + codeSandboxProperties.getGlobalCodePath();
+        String codeCachePath = codeSandboxProperties.getCodeCachePath();
 
         // 判断全局代码目录是否存在，没有则新建
-        if (!FileUtil.exist(globalCodePathName)) {
-            FileUtil.mkdir(globalCodePathName);
+        if (!FileUtil.exist(codeCachePath)) {
+            FileUtil.mkdir(codeCachePath);
         }
 
         // 把用户的代码隔离存放
-        String userCodeParentPath = globalCodePathName + File.separator + UUID.randomUUID();
+        String userCodeUuid = UUID.randomUUID().toString();
+        context.put("userCodeUuid", userCodeUuid);
+        String userCodeParentPath = codeCachePath + File.separator + userCodeUuid;
         String userCodePath = userCodeParentPath + File.separator + langSpecSetting(context).getMainFile();
         return FileUtil.writeString(code, userCodePath, StandardCharsets.UTF_8);
     }

@@ -15,7 +15,8 @@ spring:
 code-sandbox:
   judge-mode: ${geekoj.code-sandbox.judge-mode}
   x-service-key: ${geekoj.code-sandbox.x-service-key}
-  global-code-path: tmpCode
+  code-cache-path: ${geekoj.code-sandbox.code-cache-path}
+  host-code-cache-path: ${geekoj.code-sandbox.host-code-cache-path}
   language-settings:
     java:
       image: ibm-semeru-runtimes:open-17-jdk-jammy
@@ -38,6 +39,7 @@ code-sandbox:
       run-time-out: 10000
       compile-command: go build -o /app/main /app/main.go
       run-command: /app/main
+
 docker:
   host: ${geekoj.code-sandbox.docker.host}
   first-init: ${geekoj.code-sandbox.docker.first-init}

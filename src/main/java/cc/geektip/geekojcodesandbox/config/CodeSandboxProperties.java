@@ -17,8 +17,10 @@ import java.util.Map;
 public class CodeSandboxProperties {
     // 代码沙箱服务密钥
     private String xServiceKey;
-    // 代码沙箱全局代码路径
-    private String globalCodePath;
+    // 代码沙箱代码缓存路径（容器内部）
+    private String codeCachePath;
+    // 代码沙箱代码缓存路径（宿主机）
+    private String hostCodeCachePath;
     // 代码沙箱评测模式
     private String judgeMode;
     // 代码沙箱语言设置
