@@ -82,6 +82,7 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
             }
         } catch (Exception e) {
             log.error("代码沙箱异常: ", e);
+            cleanup(codeFile);
             beforeExit(context);
             return buildRunErrorResp(e);
         }
