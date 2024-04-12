@@ -11,7 +11,7 @@ geekoj:
     password: ${NACOS_PASSWORD:nacos}
   code-sandbox:
     x-service-key: ${CODE_SANDBOX_X_SERVICE_KEY:162d6319-eca7-10c6-8005-14f7c3d296aa}
-    judge-mode: ${JUDGE_MODE:acm}
+    judge-mode: ${CODE_SANDBOX_JUDGE_MODE:acm}
     docker:
       host: ${DOCKER_HOST:unix:///var/run/docker.sock}
       first-init: ${DOCKER_FIRST_INIT:true}
