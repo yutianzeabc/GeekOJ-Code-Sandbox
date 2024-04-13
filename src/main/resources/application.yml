@@ -3,6 +3,9 @@ spring:
     name: geekoj-code-sandbox
   profiles:
     active: ${geekoj.profiles.active}
+  threads:
+    virtual:
+      enabled: true
   cloud:
     nacos:
       discovery:

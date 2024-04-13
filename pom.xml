@@ -15,7 +15,7 @@
     <description>geekoj-code-sandbox</description>
     <properties>
         <skipTests>true</skipTests>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-boot.version>3.2.4</spring-boot.version>
@@ -103,7 +103,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.0.2</version>
                 <configuration>
                     <excludes>
                         <exclude>
