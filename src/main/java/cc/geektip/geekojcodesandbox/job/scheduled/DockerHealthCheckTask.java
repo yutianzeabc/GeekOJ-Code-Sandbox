@@ -27,7 +27,7 @@ public class DockerHealthCheckTask {
     /**
      * 定时检查 Docker 健康状态，每分钟一次
      */
-    @Scheduled(cron = "0 0/1 * * ? ")
+    @Scheduled(cron = "0 0/1 * * * ?")
     public void doDockerHealthCheck() {
         boolean health = dockerDao.pingCheck();
         if (health == lastHealth.get()) return;
