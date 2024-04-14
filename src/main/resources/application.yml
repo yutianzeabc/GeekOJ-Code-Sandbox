@@ -22,21 +22,21 @@ code-sandbox:
   host-code-cache-path: ${geekoj.code-sandbox.host-code-cache-path}
   language-settings:
     java:
-      image: ibm-semeru-runtimes:open-17-jdk-jammy
+      image: ibm-semeru-runtimes:open-21-jdk-jammy
       main-file: Main.java
       compile-time-out: 10010
       run-time-out: 10010
       compile-command: javac -encoding utf-8 /app/Main.java
       run-command: java -cp /app Main
     cpp:
-      image: gcc:10
+      image: gcc:11
       main-file: Main.cpp
       compile-time-out: 10010
       run-time-out: 10010
-      compile-command: g++ -o /app/Main /app/Main.cpp
+      compile-command: g++ -O2 -fsanitize=address -o /app/Main /app/Main.cpp
       run-command: /app/Main
     go:
-      image: golang:1.20
+      image: golang:1.21
       main-file: main.go
       compile-time-out: 10010
       run-time-out: 10010
