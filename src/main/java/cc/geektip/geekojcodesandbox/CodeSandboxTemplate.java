@@ -68,12 +68,12 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
         }
 
         // 3. 运行代码
-        List<ExecuteResult> executeMessageList;
+        List<ExecuteResult> executeResultList;
         try {
             beforeRun(context, codeFile, inputList);
-            executeMessageList = run(context, codeFile, inputList);
-            ExecuteResult lastExecuteMessage = executeMessageList.get(executeMessageList.size() - 1);
-            afterRun(context, executeMessageList);
+            executeResultList = run(context, codeFile, inputList);
+            ExecuteResult lastExecuteMessage = executeResultList.getLast();
+            afterRun(context, executeResultList);
             if (lastExecuteMessage.isTimeout()) {
                 beforeExit(context);
                 return buildRunErrorResp(new Exception(SandboxErrorEnum.CODE_RUN_TLE.getMsg()));
@@ -91,7 +91,7 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
         }
 
         // 4. 构建响应
-        ExecuteCodeResponse executeCodeResponse = buildResp(executeMessageList);
+        ExecuteCodeResponse executeCodeResponse = buildResp(executeResultList);
         log.debug("代码沙箱响应: {}", executeCodeResponse);
 
         // 5. 返回响应
@@ -130,7 +130,7 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
 
     protected abstract ExecuteResult compile(Map<String, String> context, File codeFile);
 
-    protected void afterCompile(Map<String, String> context, ExecuteResult executeMessage) {
+    protected void afterCompile(Map<String, String> context, ExecuteResult executeResult) {
     }
 
     protected void beforeRun(Map<String, String> context, File codeFile, List<String> inputList) {
@@ -138,7 +138,7 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
 
     protected abstract List<ExecuteResult> run(Map<String, String> context, File codeFile, List<String> inputList);
 
-    protected void afterRun(Map<String, String> context, List<ExecuteResult> executeMessageList) {
+    protected void afterRun(Map<String, String> context, List<ExecuteResult> executeResultList) {
     }
 
     protected void beforeExit(Map<String, String> context) {
