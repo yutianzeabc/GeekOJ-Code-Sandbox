@@ -45,18 +45,18 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
         File codeFile = save(context);
 
         // 2. 编译代码
-        // 3. 清理代码
         ExecuteResult compileResult;
         try {
             beforeCompile(context, codeFile);
             compileResult = compile(context, codeFile);
             afterCompile(context, compileResult);
-            cleanup(codeFile);
             if (compileResult.isTimeout()) {
+                cleanup(codeFile);
                 beforeExit(context);
                 return buildCompileErrorResp(new Exception(SandboxErrorEnum.CODE_COMPILE_TLE.getMsg()));
             }
             if (compileResult.getExitValue() != 0) {
+                cleanup(codeFile);
                 beforeExit(context);
                 return buildCompileErrorResp(new Exception(compileResult.getErrorOutput()));
             }
@@ -67,7 +67,7 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
             return buildCompileErrorResp(e);
         }
 
-        // 4. 运行代码
+        // 3. 运行代码
         List<ExecuteResult> executeMessageList;
         try {
             beforeRun(context, codeFile, inputList);
@@ -86,13 +86,15 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
             log.error("代码沙箱异常: ", e);
             beforeExit(context);
             return buildRunErrorResp(e);
+        } finally {
+            cleanup(codeFile);
         }
 
-        // 5. 构建响应
+        // 4. 构建响应
         ExecuteCodeResponse executeCodeResponse = buildResp(executeMessageList);
         log.debug("代码沙箱响应: {}", executeCodeResponse);
 
-        // 6. 返回响应
+        // 5. 返回响应
         beforeExit(context);
         return executeCodeResponse;
 
