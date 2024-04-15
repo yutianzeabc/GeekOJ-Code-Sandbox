@@ -18,9 +18,10 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class DockerCleanupManager {
 
-    private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
     @Resource
     private DockerDao dockerDao;
+
+    private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
 
     /**
      * 提交清理任务
