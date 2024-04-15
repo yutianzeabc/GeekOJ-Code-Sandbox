@@ -21,7 +21,7 @@ public class DockerCleanupManager {
     @Resource
     private DockerDao dockerDao;
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
 
     /**
      * 提交清理任务
