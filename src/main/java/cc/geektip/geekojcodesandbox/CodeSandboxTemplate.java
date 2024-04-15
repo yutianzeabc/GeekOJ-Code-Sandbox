@@ -8,6 +8,7 @@ import cc.geektip.geekojcodesandbox.model.dto.ExecuteCodeResponse;
 import cc.geektip.geekojcodesandbox.model.dto.ExecuteResult;
 import cc.geektip.geekojcodesandbox.model.enums.ExecuteCodeStatusEnum;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.lang.UUID;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -44,11 +45,13 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
         File codeFile = save(context);
 
         // 2. 编译代码
+        // 3. 清理代码
         ExecuteResult compileResult;
         try {
             beforeCompile(context, codeFile);
             compileResult = compile(context, codeFile);
             afterCompile(context, compileResult);
+            cleanup(codeFile);
             if (compileResult.isTimeout()) {
                 beforeExit(context);
                 return buildCompileErrorResp(new Exception(SandboxErrorEnum.CODE_COMPILE_TLE.getMsg()));
@@ -59,19 +62,18 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
             }
         } catch (Exception e) {
             log.error("代码沙箱异常: ", e);
+            cleanup(codeFile);
             beforeExit(context);
             return buildCompileErrorResp(e);
         }
 
-        // 3. 运行代码
-        // 4. 清理代码
+        // 4. 运行代码
         List<ExecuteResult> executeMessageList;
         try {
             beforeRun(context, codeFile, inputList);
             executeMessageList = run(context, codeFile, inputList);
             ExecuteResult lastExecuteMessage = executeMessageList.get(executeMessageList.size() - 1);
             afterRun(context, executeMessageList);
-            cleanup(codeFile);
             if (lastExecuteMessage.isTimeout()) {
                 beforeExit(context);
                 return buildRunErrorResp(new Exception(SandboxErrorEnum.CODE_RUN_TLE.getMsg()));
@@ -82,7 +84,6 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
             }
         } catch (Exception e) {
             log.error("代码沙箱异常: ", e);
-            cleanup(codeFile);
             beforeExit(context);
             return buildRunErrorResp(e);
         }
@@ -151,13 +152,14 @@ public abstract class CodeSandboxTemplate implements CodeSandbox {
 
     protected void cleanup(File codeFile) {
         File parentFile = codeFile.getParentFile();
-        if (FileUtil.exist(parentFile)) {
-            boolean del = FileUtil.del(parentFile);
-            if (!del) {
-                log.error("代码缓存删除失败");
-            } else {
+        try {
+            if (FileUtil.del(parentFile)) {
                 log.debug("代码缓存删除成功");
+            } else {
+                log.error("代码缓存删除失败");
             }
+        } catch (IORuntimeException e) {
+            log.error("代码缓存删除异常", e);
         }
     }
 
